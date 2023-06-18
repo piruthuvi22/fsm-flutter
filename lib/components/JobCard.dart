@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fsm_agent/Models/Job.dart';
 import 'package:fsm_agent/views/JobDetails.dart';
+import 'package:intl/intl.dart';
 
 class JobCard extends StatefulWidget {
   final Function(int) callback;
   final Job job;
+  final String location;
 
-  const JobCard({super.key, required this.job, required this.callback});
+  const JobCard(this.location,
+      {super.key, required this.job, required this.callback});
 
   @override
   State<JobCard> createState() => _JobCardState();
@@ -24,6 +27,11 @@ class _JobCardState extends State<JobCard> {
   Widget build(BuildContext context) {
     // String? location = ModalRoute.of(context)?.settings.name;
     // print(location);
+    String img = widget.location == "progress"
+        ? "images/progressing.svg"
+        : widget.location == "completed"
+            ? "images/completed.svg"
+            : "images/assigned.svg";
     return InkWell(
       splashColor: Colors.grey.shade300,
       onTap: () {
@@ -68,7 +76,7 @@ class _JobCardState extends State<JobCard> {
                 height: double.maxFinite,
                 // color: Colors.blue,
                 child: SvgPicture.asset(
-                  "images/assigned.svg",
+                  img,
                   width: 100,
                   // height: 100,
 
@@ -113,7 +121,9 @@ class _JobCardState extends State<JobCard> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
-                          child: Text("${widget.job.date}"),
+                          // child: Text("${widget.job.date}"),
+                          child: Text(DateFormat("dd-MMM-yyyy")
+                              .format(widget.job.date)),
                         ),
                       ],
                     )

@@ -340,7 +340,7 @@ class _JobDetailsState extends State<JobDetails> {
                       child: ListTile(
                     contentPadding: EdgeInsets.symmetric(horizontal: 10),
                     leading: Icon(Icons.schedule),
-                    subtitle: Text(widget.job.date),
+                    subtitle: Text(widget.job.date.toString()),
                     title: Text("Date"),
                   ))
                 ],

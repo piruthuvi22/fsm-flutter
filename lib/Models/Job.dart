@@ -1,8 +1,10 @@
+import 'package:intl/intl.dart';
+
 class Job {
   final int id;
   final String title;
   final String description;
-  final String date;
+  final DateTime date;
   final String address;
   final String customerName;
   final String phoneNumber;
@@ -20,14 +22,16 @@ class Job {
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
+    final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
+    final DateTime parsedDate = dateFormat.parse(json['date']);
     return Job(
       id: json['id'],
       title: json['title'],
       description: json['description'],
-      date: json['date'],
+      date: parsedDate,
       address: json['address'],
       customerName: json['customerName'],
-      phoneNumber: json['phoneNumber'],
+      phoneNumber: json['customerPhoneNumber'],
       status: json['status'],
     );
   }

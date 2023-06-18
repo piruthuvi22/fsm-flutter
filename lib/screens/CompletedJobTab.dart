@@ -142,7 +142,7 @@ class _CompletedJobTabState extends State<CompletedJobTab> {
                   child: ListView(
                       padding: EdgeInsets.zero,
                       children: filteredJobs
-                          .map((job) => JobCard(
+                          .map((job) => JobCard("completed",
                               job: job, callback: handleJobDetailsNavigation))
                           .toList()),
                 ),

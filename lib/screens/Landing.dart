@@ -3,9 +3,99 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fsm_agent/Models/Job.dart';
+import 'package:fsm_agent/services/api_service.dart';
+import 'package:intl/intl.dart';
 
-class Landing extends StatelessWidget {
+class Landing extends StatefulWidget {
   const Landing({super.key});
+
+  @override
+  State<Landing> createState() => _LandingState();
+}
+
+enum Calendar { day, week, month, year }
+
+class _LandingState extends State<Landing> {
+  Calendar calendarView = Calendar.day;
+
+  final ApiService apiService = ApiService();
+  int assignedJobs = 0;
+  int progressJobs = 0;
+  List<Job> jobsList = [];
+  List<Job> filterList = [];
+
+  Future<void> fetchJobs() async {
+    apiService.getProgressedJobs().then((responseData) {
+      setState(() {
+        jobsList = responseData;
+        filterList = responseData;
+        progressJobs = responseData.length;
+      });
+    }).catchError((error) {
+      print(error);
+    });
+    apiService.getAssignedJobs().then((responseData) {
+      setState(() {
+        assignedJobs = responseData.length;
+      });
+    }).catchError((error) {
+      print(error);
+    });
+  }
+
+  void filterTodayJob(String filterType) {
+    if (filterType == "") {
+      setState(() {
+        filterList = jobsList;
+      });
+    }
+    if (filterType == "today") {
+      DateTime today = DateTime.now();
+      List<Job> filteredTasks = jobsList
+          .where((task) =>
+              task.date.year == today.year &&
+              task.date.month == today.month &&
+              task.date.day == today.day)
+          .toList();
+      print(filteredTasks.length);
+      setState(() {
+        filterList = filteredTasks;
+      });
+    } else if (filterType == "yesterday") {
+      DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
+      List<Job> filteredTasks = jobsList
+          .where((task) =>
+              task.date.year == yesterday.year &&
+              task.date.month == yesterday.month &&
+              task.date.day == yesterday.day)
+          .toList();
+      print(filteredTasks.length);
+      setState(() {
+        filterList = filteredTasks;
+      });
+    } else if (filterType == "tomorrow") {
+      DateTime tomorrow = DateTime.now().add(Duration(days: 1));
+      List<Job> filteredTasks = jobsList
+          .where((task) =>
+              task.date.year == tomorrow.year &&
+              task.date.month == tomorrow.month &&
+              task.date.day == tomorrow.day)
+          .toList();
+      print(filteredTasks.length);
+      setState(() {
+        filterList = filteredTasks;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchJobs();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,22 +104,49 @@ class Landing extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          DashboardCard(),
-          DashboardCard(),
+          DashboardCard("assigned", assignedJobs),
+          DashboardCard("progress", progressJobs),
           Container(
             margin: EdgeInsets.symmetric(vertical: 20, horizontal: 5),
-            // height: 10,
             child: Text(
               "On progress",
               style: TextStyle(fontSize: 24),
             ),
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                  onPressed: () {
+                    filterTodayJob("yesterday");
+                  },
+                  child: Text("Yesterday")),
+              TextButton(
+                  onPressed: () {
+                    filterTodayJob("today");
+                  },
+                  child: Text("Today")),
+              TextButton(
+                  onPressed: () {
+                    filterTodayJob("tomorrow");
+                  },
+                  child: Text("Tomorrow")),
+              TextButton(
+                  onPressed: () {
+                    filterTodayJob("");
+                  },
+                  child: Text("All"))
+            ],
+          ),
           Flexible(
-            child: ListView(children: const [
-              DashboardTodayCards(),
-              DashboardTodayCards(),
-              DashboardTodayCards(),
-            ]),
+            child: RefreshIndicator(
+              onRefresh: fetchJobs,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                child:
+                    ListView(children: [...filterList.map((e) => TodayJob(e))]),
+              ),
+            ),
           )
         ],
       ),
@@ -38,7 +155,9 @@ class Landing extends StatelessWidget {
 }
 
 class DashboardCard extends StatelessWidget {
-  const DashboardCard({super.key});
+  final int? count;
+  final String? type;
+  const DashboardCard(this.type, this.count, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,29 +167,41 @@ class DashboardCard extends StatelessWidget {
       child: InkWell(
         splashColor: Colors.grey.shade200,
         onTap: () {
-          print('Card tapped');
+          type == "assigned"
+              ? Navigator.pushNamed(context, "/jobs")
+              : Navigator.pushNamed(context, "/my-jobs");
         },
         child: Container(
-          // width: 300,
+          height: 100,
+          padding: EdgeInsets.all(8),
           child: Stack(children: [
             Row(
               children: [
-                Image.network(
-                    "https://st3.depositphotos.com/10485246/13410/i/450/depositphotos_134108248-stock-photo-assigned-stamp-sign-green.jpg",
-                    width: 100),
+                SvgPicture.asset(
+                  type == "assigned"
+                      ? "images/assigned.svg"
+                      : "images/progressing.svg",
+                  width: 100,
+
+                  // height: 100,
+                  alignment: Alignment.center,
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                       Text(
-                        "Assigned Jobs",
+                        type == "assigned"
+                            ? "Assigned Jobs"
+                            : "Progressed Jobs",
                         style: TextStyle(fontSize: 24),
                       ),
-                      Text(
-                        "Subtitle",
-                        style: TextStyle(fontSize: 18),
-                      ),
+                      // Text(
+                      //   "Subtitle",
+                      //   style: TextStyle(fontSize: 18),
+                      // ),
                     ],
                   ),
                 )
@@ -84,8 +215,8 @@ class DashboardCard extends StatelessWidget {
                 textStyle:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 backgroundColor: Colors.red.shade400,
-                label: const Text(
-                  "12",
+                label: Text(
+                  count.toString(),
                 ),
               ),
             ),
@@ -96,15 +227,21 @@ class DashboardCard extends StatelessWidget {
   }
 }
 
-class DashboardTodayCards extends StatelessWidget {
-  const DashboardTodayCards({super.key});
+class TodayJob extends StatefulWidget {
+  final Job job;
+  const TodayJob(this.job, {super.key});
 
+  @override
+  State<TodayJob> createState() => _TodayJobState();
+}
+
+class _TodayJobState extends State<TodayJob> {
   @override
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.hardEdge,
       child: InkWell(
-        // splashColor: Colors.grey.shade200,
+        splashColor: Colors.grey.shade200,
         onTap: () {
           print('Card tapped');
         },
@@ -113,8 +250,11 @@ class DashboardTodayCards extends StatelessWidget {
           child: Stack(children: [
             Row(
               children: [
-                Image.network(
-                  "https://img.freepik.com/free-vector/men-success-laptop-relieve-work-from-home-computer-great_10045-646.jpg?w=2000",
+                SvgPicture.asset(
+                  "images/today.svg",
+                  width: 100,
+                  // height: 100,
+                  alignment: Alignment.center,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8),
@@ -124,13 +264,13 @@ class DashboardTodayCards extends StatelessWidget {
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
-                            "Assigned Jobs",
+                            widget.job.title,
                             style: TextStyle(fontSize: 24),
                           ),
                           Text(
-                            "Subtitle",
+                            widget.job.phoneNumber,
                             style: TextStyle(fontSize: 18),
                           ),
                         ],
@@ -140,27 +280,15 @@ class DashboardTodayCards extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: const [
-                                Icon(
-                                  Icons.circle,
-                                  color: Colors.green,
-                                  size: 10,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text("Active"),
-                              ],
-                            ),
                             SizedBox(
                               width: 5,
                             ),
-                            Text("Jaffna"),
+                            Text(widget.job.address),
                             SizedBox(
                               width: 5,
                             ),
-                            Text("6 Days")
+                            Text(DateFormat("dd-MMM-yyyy")
+                                .format(widget.job.date)),
                           ],
                         ),
                       )
@@ -169,15 +297,15 @@ class DashboardTodayCards extends StatelessWidget {
                 )
               ],
             ),
-            Positioned(
-                top: 0,
-                right: 0,
-                child: IconButton(
-                  tooltip: "Chat with supervisor",
-                  color: Colors.blue,
-                  icon: Icon(Icons.chat),
-                  onPressed: () {},
-                )),
+            // Positioned(
+            //     top: 0,
+            //     right: 0,
+            //     child: IconButton(
+            //       tooltip: "Chat with supervisor",
+            //       color: Colors.blue,
+            //       icon: Icon(Icons.chat),
+            //       onPressed: () {},
+            //     )),
           ]),
         ),
       ),

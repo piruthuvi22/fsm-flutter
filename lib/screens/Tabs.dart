@@ -18,8 +18,8 @@ class _MyJobs2State extends State<MyJobs2> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+
     // print(isLoading);
   }
 

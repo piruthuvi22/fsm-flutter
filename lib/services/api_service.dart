@@ -29,6 +29,7 @@ class ApiService {
     final response = await http
         .get(Uri.parse('http://192.168.8.139:8080/get-progressed/$agentId'));
     if (response.statusCode == 200) {
+      // print(response.body.toString());
       return (jsonDecode(response.body) as List)
           .map((e) => Job.fromJson(e))
           .toList();

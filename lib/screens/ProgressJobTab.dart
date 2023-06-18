@@ -143,7 +143,7 @@ class _ProgressJobTabState extends State<ProgressJobTab> {
                   child: ListView(
                       padding: EdgeInsets.zero,
                       children: filteredJobs
-                          .map((job) => JobCard(
+                          .map((job) => JobCard("progress",
                               job: job, callback: handleJobDetailsNavigation))
                           .toList()),
                 ),

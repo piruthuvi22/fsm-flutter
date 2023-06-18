@@ -154,7 +154,7 @@ class _JobsState extends State<Jobs> {
                     child: ListView(
                         padding: EdgeInsets.zero,
                         children: filteredJobs
-                            .map((job) => JobCard(
+                            .map((job) => JobCard("assigned",
                                 job: job, callback: handleJobDetailsNavigation))
                             .toList()),
                   ),
