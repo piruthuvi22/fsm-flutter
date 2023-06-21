@@ -1,9 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:fsm_agent/components/Drawer.dart';
 import 'package:fsm_agent/screens/ChatScreen.dart';
+import 'package:fsm_agent/services/api_service.dart';
 
-class Chats extends StatelessWidget {
+class Chats extends StatefulWidget {
   const Chats({super.key});
+
+  @override
+  State<Chats> createState() => _ChatsState();
+}
+
+class _ChatsState extends State<Chats> {
+  ApiService apiService = ApiService();
+  String userId = "agent_1";
+  bool isLoading = true;
+  List peopleList = [];
+
+  Future<void> fetchPeople() async {
+    setState(() {
+      isLoading = true;
+    });
+    apiService.getPeoples(userId).then((responseData) {
+      print(responseData.first);
+      setState(() {
+        peopleList = responseData;
+        isLoading = false;
+      });
+    }).catchError((error) {
+      print(error);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPeople();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,23 +48,22 @@ class Chats extends StatelessWidget {
                 icon: const Icon(Icons.notifications))
           ],
         ),
-        body: Container(
-          color: Colors.grey.shade200,
-          // padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-          child: ListView(
-            children: [
-              ChatPeopleTile(
-                name: 'John',
-                message: 'Hey, how are you?',
-                unreadCount: 2,
-              ),
-              ChatPeopleTile(
-                name: 'Jane',
-                message: 'What are you up to?',
-                unreadCount: 0,
-              ),
-              // Add more chat people tiles here
-            ],
+        body: RefreshIndicator(
+          onRefresh: fetchPeople,
+          child: Container(
+            color: Colors.grey.shade200,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            child: ListView(
+                padding: EdgeInsets.zero,
+                children: peopleList
+                    .map(
+                      (receiverId) => ChatPeopleTile(
+                        receiverId: receiverId,
+                        message: 'Hey, how are you?',
+                        unreadCount: 2,
+                      ),
+                    )
+                    .toList()),
           ),
         ),
         drawer: const DrawerPanel(
@@ -43,20 +74,24 @@ class Chats extends StatelessWidget {
 }
 
 class ChatPeopleTile extends StatelessWidget {
-  final String name;
+  final String receiverId;
   final String message;
   final int unreadCount;
+  String userId = "agent_1";
 
   ChatPeopleTile(
-      {required this.name, required this.message, required this.unreadCount});
+      {super.key,
+      required this.receiverId,
+      required this.message,
+      required this.unreadCount});
 
   void openChatScreen(BuildContext context) {
-    print("object");
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ChatScreen()),
+      MaterialPageRoute(
+          builder: (context) =>
+              ChatScreen(userId: userId, receiverId: receiverId)),
     ).then((value) {
-      print(value);
       if (value == true) {}
     });
   }
@@ -65,10 +100,10 @@ class ChatPeopleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        child: Text(name[0]),
+        child: Text(receiverId[0]),
       ),
       title: Text(
-        name,
+        receiverId,
         style: TextStyle(
           fontWeight: FontWeight.bold,
         ),
