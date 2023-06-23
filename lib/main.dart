@@ -3,14 +3,11 @@ import 'firebase_options.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fsm_agent/components/Drawer.dart';
-import 'package:fsm_agent/firebase_options.dart';
 import 'package:fsm_agent/screens/Landing.dart';
-import 'package:fsm_agent/screens/Tabs.dart';
+import 'package:fsm_agent/screens/MyJobs.dart';
 
 import 'screens/Jobs.dart';
-import 'screens/ProgressJobTab.dart';
 import 'screens/Chats.dart';
-import 'screens/ProfileSettings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,9 +33,9 @@ class MyApp extends StatelessWidget {
         // "/": (context) => const MyHomePage(),
         "/dashboard": (context) => const MyHomePage(),
         "/jobs": (context) => const Jobs(),
-        "/my-jobs": (context) => const MyJobs2(),
+        "/my-jobs": (context) => const MyJobs(),
         "/chats": (context) => const Chats(),
-        "/profile-settings": (context) => const ProfileSettings()
+        // "/profile-settings": (context) => const ProfileSettings()
       },
     );
   }

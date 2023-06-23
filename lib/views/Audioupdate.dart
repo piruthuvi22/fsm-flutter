@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 
 class JobNotes extends StatefulWidget {
   final int jobID;
-  const JobNotes(this.jobID, {super.key});
+  const JobNotes({super.key, required this.jobID});
 
   @override
   State<JobNotes> createState() => _JobNotesState();
@@ -120,7 +120,6 @@ class _JobNotesState extends State<JobNotes> {
       isLoading = true;
     });
     apiService.getJobNotes(widget.jobID).then((responseData) {
-      print(responseData.toString());
       setState(() {
         jobNotes = responseData;
         isLoading = false;
@@ -132,21 +131,6 @@ class _JobNotesState extends State<JobNotes> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(239, 239, 239, 1),
-      appBar: AppBar(
-        title: const Text("Update notes"),
-        actions: [
-          IconButton(
-              onPressed: () => {print("notifications button")},
-              icon: const Icon(Icons.notifications))
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FloatingActionButton(
-          child: const Icon(Icons.post_add),
-          onPressed: openBottomSheet,
-        ),
-      ),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
@@ -178,6 +162,28 @@ class _JobNotesState extends State<JobNotes> {
           ],
         ),
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FloatingActionButton(
+          child: const Icon(Icons.post_add),
+          onPressed: openBottomSheet,
+        ),
+      ),
     );
   }
 }
+
+
+/**
+ * 
+ * 
+ * 
+ *  floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FloatingActionButton(
+          child: const Icon(Icons.post_add),
+          onPressed: openBottomSheet,
+        ),
+      ),
+      
+ */

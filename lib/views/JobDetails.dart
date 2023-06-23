@@ -3,8 +3,9 @@ import 'dart:ffi';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:fsm_agent/Models/Job.dart';
+import 'package:fsm_agent/screens/JobUpdates.dart';
 import 'package:fsm_agent/services/api_service.dart';
-import 'package:fsm_agent/views/JobNotes.dart';
+import 'package:fsm_agent/views/Noteupdate.dart';
 
 class JobDetails extends StatefulWidget {
   final Job job;
@@ -219,7 +220,10 @@ class _JobDetailsState extends State<JobDetails> {
     print("handleJobNotes $jobId");
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => JobNotes(jobId)),
+      MaterialPageRoute(
+          builder: (context) => JobUpdates(
+                jobId: jobId,
+              )),
     ).then((value) {
       print(value);
       if (value == true) {}

@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:fsm_agent/Models/AcceptReject.dart';
 import 'package:fsm_agent/Models/JobNote.dart';
-import 'package:fsm_agent/views/JobNotes.dart';
+import 'package:fsm_agent/views/Noteupdate.dart';
 import 'package:http/http.dart' as http;
 import 'package:fsm_agent/Models/Job.dart';
 
 class ApiService {
-  static const baseUrl = 'http://192.168.8.139:8080';
+  static const baseUrl = 'http://10.10.23.243:8080';
+  // 10.10.23.243
+  // 192.168.8.139
 
 // fetch assigned jobs of agent
   Future<List<Job>> getAssignedJobs() async {
@@ -155,7 +157,21 @@ class ApiService {
       throw Exception('Failed to load messages notes');
     }
   }
+
+  Future<List<String>> getImages() async {
+//https://picsum.photos/v2/list?limit=5
+    return [
+      "https://picsum.photos/id/3/5000/3333",
+      "https://picsum.photos/id/2/5000/3333"
+    ];
+  }
+
+  Future<String> saveImage(String url) async {
+    return url;
+  }
 }
+
+
 
 //  const sendPrivateMessage = (e) => {
 //     if (stompClient) {

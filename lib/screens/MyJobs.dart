@@ -2,18 +2,17 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:fsm_agent/components/Drawer.dart';
-import 'package:fsm_agent/screens/CompletedJobTab.dart';
-import 'package:fsm_agent/screens/Jobs.dart';
-import 'package:fsm_agent/screens/ProgressJobTab.dart';
+import 'package:fsm_agent/views/CompletedJobTab.dart';
+import 'package:fsm_agent/views/ProgressJobTab.dart';
 
-class MyJobs2 extends StatefulWidget {
-  const MyJobs2({super.key});
+class MyJobs extends StatefulWidget {
+  const MyJobs({super.key});
 
   @override
-  State<MyJobs2> createState() => _MyJobs2State();
+  State<MyJobs> createState() => _MyJobsState();
 }
 
-class _MyJobs2State extends State<MyJobs2> {
+class _MyJobsState extends State<MyJobs> {
   bool isLoading = true;
 
   @override
