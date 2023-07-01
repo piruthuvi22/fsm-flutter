@@ -273,25 +273,11 @@ class _TodayJobState extends State<TodayJob> {
                             widget.job.phoneNumber,
                             style: TextStyle(fontSize: 18),
                           ),
+                          Text(widget.job.address),
+                          Text(
+                              DateFormat("dd-MMM-yyyy").format(widget.job.date))
                         ],
                       ),
-                      Container(
-                        // color: Colors.amber,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(widget.job.address),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(DateFormat("dd-MMM-yyyy")
-                                .format(widget.job.date)),
-                          ],
-                        ),
-                      )
                     ],
                   ),
                 )

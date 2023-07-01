@@ -16,7 +16,7 @@ class JobUpdates extends StatefulWidget {
 }
 
 class _JobUpdatesState extends State<JobUpdates> {
-  bool isLoading = true;
+  // bool isLoading = true;
 
   @override
   void initState() {
@@ -25,13 +25,13 @@ class _JobUpdatesState extends State<JobUpdates> {
     // print(isLoading);
   }
 
-  void handleIsLoading(bool loading) {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        isLoading = loading;
-      });
-    });
-  }
+  // void handleIsLoading(bool loading) {
+  //   SchedulerBinding.instance.addPostFrameCallback((_) {
+  //     setState(() {
+  //       isLoading = loading;
+  //     });
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +50,11 @@ class _JobUpdatesState extends State<JobUpdates> {
         ),
         body: Column(
           children: [
-            if (isLoading)
-              const LinearProgressIndicator(
-                color: Colors.blue,
-                backgroundColor: Colors.white,
-              ),
+            // if (isLoading)
+            //   const LinearProgressIndicator(
+            //     color: Colors.blue,
+            //     backgroundColor: Colors.white,
+            //   ),
             Material(
               color: Colors.blue,
               child: TabBar(
@@ -115,13 +115,13 @@ class _JobUpdatesState extends State<JobUpdates> {
               child: TabBarView(
                 children: [
                   JobNotes(
-                    jobID: widget.jobId,
+                    jobId: widget.jobId,
                   ),
                   ImageUpdate(
                     jobId: widget.jobId,
                   ),
                   JobNotes(
-                    jobID: widget.jobId,
+                    jobId: widget.jobId,
                   ),
                 ],
               ),

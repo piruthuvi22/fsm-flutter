@@ -1,15 +1,20 @@
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:fsm_agent/Models/AcceptReject.dart';
-import 'package:fsm_agent/Models/JobNote.dart';
+import 'package:fsm_agent/Models/JobUpdate.dart';
+import 'package:fsm_agent/enums/JobUpdateType.dart';
 import 'package:fsm_agent/views/Noteupdate.dart';
-import 'package:http/http.dart' as http;
 import 'package:fsm_agent/Models/Job.dart';
 
 class ApiService {
-  static const baseUrl = 'http://10.10.23.243:8080';
-  // 10.10.23.243
-  // 192.168.8.139
+  // static const baseUrl = 'http://10.10.23.243:8080'; // UoM Wireless
+  // static const baseUrl = 'http://192.168.8.139:8080'; // WiFi
+  static const baseUrl = 'http://192.168.143.104:8080'; // hotspot
+
+  // static const baseSocketUrl = 'http://10.10.23.243:8081'; // UoM Wireless
+  // static const baseSocketUrl = 'http://192.168.8.139:8081'; // WiFi
+  static const baseSocketUrl = 'http://192.168.143.104:8081'; // hotspot
 
 // fetch assigned jobs of agent
   Future<List<Job>> getAssignedJobs() async {
@@ -82,12 +87,13 @@ class ApiService {
   }
 
 // fetch jobs notes of task
-  Future<List<JobNote>> getJobNotes(int jobId) async {
+  Future<List<JobUpdate>> getJobUpdates(int jobId, JobUpdateType type) async {
+    String typeString = type.toString().split('.').last;
     final response =
-        await http.get(Uri.parse('$baseUrl/get-task-notes/$jobId'));
+        await http.get(Uri.parse('$baseUrl/get-task-notes/$jobId/$typeString'));
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as List)
-          .map((e) => JobNote.fromJson(e))
+          .map((e) => JobUpdate.fromJson(e))
           .toList();
     } else {
       throw Exception('Failed to load job notes');
@@ -95,45 +101,34 @@ class ApiService {
   }
 
 // post jobs notes of task
-  Future<JobNote> addJobNote(JobNote jobNote) async {
+  Future<JobUpdate> addJobUpdate(Map<String, dynamic> jobUpdate) async {
     final response = await http.post(
       Uri.parse('$baseUrl/add-task-note'),
       body: jsonEncode(<String, dynamic>{
-        'taskId': jobNote.taskId,
-        'message': jobNote.message,
-        'date': jobNote.date.toIso8601String(),
+        'taskId': jobUpdate["taskId"],
+        'data': jobUpdate["data"],
+        'date': jobUpdate["date"].toIso8601String(),
+        'type': jobUpdate["type"].toString().split('.').last,
       }),
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode == 200) {
-      return JobNote.fromJson(jsonDecode(response.body));
+      return JobUpdate.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to post job note');
     }
   }
 
-// update jobs notes of task
-  Future<JobNote> updateJobNote() async {
-    final response = await http.put(Uri.parse('$baseUrl/update-task-note'));
-    if (response.statusCode == 200) {
-      return JobNote.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to update job note');
-    }
-  }
-
-  // post delete notes of task
-  Future<JobNote> deleteJobNote(int jobId) async {
+  //  delete notes of task
+  Future<dynamic> deleteJobUpdate(int jobId) async {
     final response =
         await http.delete(Uri.parse('$baseUrl/delete-task-note/$jobId'));
     if (response.statusCode == 200) {
-      return JobNote.fromJson(jsonDecode(response.body));
+      return response.body;
     } else {
       throw Exception('Failed to delete job note');
     }
   }
-
-  static const baseSocketUrl = 'http://192.168.8.139:8081';
 
 // fetch people list
   Future<List> getPeoples(String userId) async {
@@ -156,14 +151,6 @@ class ApiService {
     } else {
       throw Exception('Failed to load messages notes');
     }
-  }
-
-  Future<List<String>> getImages() async {
-//https://picsum.photos/v2/list?limit=5
-    return [
-      "https://picsum.photos/id/3/5000/3333",
-      "https://picsum.photos/id/2/5000/3333"
-    ];
   }
 
   Future<String> saveImage(String url) async {

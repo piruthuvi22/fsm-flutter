@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fsm_agent/Models/JobUpdate.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 class PhotoViewPage extends StatelessWidget {
-  final List<String> photos;
+  final List<JobUpdate> photos;
   final int index;
 
   const PhotoViewPage({
@@ -12,6 +14,17 @@ class PhotoViewPage extends StatelessWidget {
     required this.photos,
     required this.index,
   }) : super(key: key);
+
+  Future deleteFile(BuildContext context, String url) async {
+    final navigator = Navigator.of(context);
+
+    try {
+      await FirebaseStorage.instance.refFromURL(url).delete();
+      navigator.pop(photos[index].id);
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,14 +51,15 @@ class PhotoViewPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pop(context, index),
+        // onPressed: () => ,
+        onPressed: () => deleteFile(context, photos[index].data),
         child: const Icon(Icons.delete),
       ),
       body: PhotoViewGallery.builder(
         itemCount: photos.length,
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
           child: CachedNetworkImage(
-            imageUrl: photos[index],
+            imageUrl: photos[index].data,
             placeholder: (context, url) => Container(
               color: Colors.grey,
             ),

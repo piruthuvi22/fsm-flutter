@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fsm_agent/Models/JobUpdate.dart';
+import 'package:fsm_agent/enums/JobUpdateType.dart';
 import 'package:fsm_agent/services/api_service.dart';
 import 'package:fsm_agent/views/photo_view_page.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,7 +25,7 @@ class _ImageUpdateState extends State<ImageUpdate> {
   String imageUrl = "";
   String taskId = "1";
   bool isLoading = false;
-  List<String> images = [];
+  List<JobUpdate> jobUpdates = [];
 
   @override
   void initState() {
@@ -119,9 +122,11 @@ class _ImageUpdateState extends State<ImageUpdate> {
     setState(() {
       isLoading = true;
     });
-    await apiService.getImages().then((responseData) {
+    await apiService
+        .getJobUpdates(widget.jobId, JobUpdateType.IMAGE)
+        .then((responseData) {
       setState(() {
-        images = responseData;
+        jobUpdates = responseData;
         isLoading = false;
       });
     }).catchError((error) {
@@ -134,60 +139,122 @@ class _ImageUpdateState extends State<ImageUpdate> {
     setState(() {
       isLoading = true;
     });
-    await apiService.saveImage(url).then((response) {
-      print(response);
+
+    Map<String, dynamic> jobImage = {
+      "taskId": widget.jobId,
+      "data": url,
+      "date": DateTime.now(),
+      "type": JobUpdateType.IMAGE,
+    };
+
+    apiService.addJobUpdate(jobImage).then((responseData) async {
       setState(() {
-        images.insert(0, response);
+        jobUpdates.insert(0, responseData);
         isLoading = false;
       });
+    }).catchError((error) async {
+      setState(() {
+        isLoading = false;
+      });
+      await Flushbar(
+              forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
+              icon: Icon(
+                Icons.info_outline,
+                size: 28.0,
+                color: Colors.blue[300],
+              ),
+              barBlur: 3,
+              flushbarPosition: FlushbarPosition.TOP,
+              // title: 'Hey Ninja',
+              duration: Duration(seconds: 3),
+              message: "Image upload failed")
+          .show(context);
+    });
+  }
+
+  Future deleteFile(int id) async {
+    // delete from database
+    print(id);
+    setState(() {
+      isLoading = true;
+    });
+    await apiService.deleteJobUpdate(id).then((value) {
+      getImages();
     }).catchError((error) {
       print(error);
     });
-    // scrollDown();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GridView.builder(
-        physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
-        padding: const EdgeInsets.all(1),
-        itemCount: images.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-        ),
-        itemBuilder: ((context, index) {
-          return Container(
-            padding: const EdgeInsets.all(0.5),
-            child: InkWell(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PhotoViewPage(photos: images, index: index),
-                ),
-              ).then((value) => print(value)),
-              child: Hero(
-                tag: images[index],
-                child: CachedNetworkImage(
-                  imageUrl: images[index],
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(color: Colors.grey),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.red.shade400,
-                  ),
-                ),
+      body: isLoading
+          ? const LoadingImage()
+          : GridView.builder(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
               ),
+              padding: const EdgeInsets.all(1),
+              itemCount: jobUpdates.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+              ),
+              itemBuilder: ((context, index) {
+                return Container(
+                  padding: const EdgeInsets.all(0.5),
+                  child: InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            PhotoViewPage(photos: jobUpdates, index: index),
+                      ),
+                    ).then((id) => deleteFile(id)),
+                    child: Hero(
+                      tag: jobUpdates[index],
+                      child: CachedNetworkImage(
+                        imageUrl: jobUpdates[index].data,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            Container(color: Colors.grey),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.red.shade400,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ),
-          );
-        }),
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: openBottomSheet,
         child: const Icon(Icons.photo_camera),
       ),
     );
+  }
+}
+
+class LoadingImage extends StatelessWidget {
+  const LoadingImage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(0.5),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(
+              height: 10,
+            ),
+            // Text("Loading Images...")
+          ],
+        ),
+      ),
+    );
+    ;
   }
 }
 

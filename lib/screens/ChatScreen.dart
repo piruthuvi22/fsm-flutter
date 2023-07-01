@@ -22,7 +22,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController msgController = TextEditingController();
   final ScrollController scrollController = ScrollController();
 
-  final socketUrl = 'http://192.168.8.139:8081/socket';
+  final socketUrl = 'http://192.168.143.104:8081/socket';
   ApiService apiService = ApiService();
   String userId = "agent_1";
 

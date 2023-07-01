@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:fsm_agent/Models/JobNote.dart';
+import 'package:fsm_agent/Models/JobUpdate.dart';
 
 class Note extends StatefulWidget {
   final Function(int) callback;
-  final JobNote jobNote;
+  final JobUpdate jobNote;
   const Note({super.key, required this.callback, required this.jobNote});
 
   @override

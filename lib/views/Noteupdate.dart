@@ -1,12 +1,13 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:fsm_agent/Models/JobNote.dart';
+import 'package:fsm_agent/Models/JobUpdate.dart';
+import 'package:fsm_agent/enums/JobUpdateType.dart';
 import 'package:fsm_agent/services/api_service.dart';
 import 'package:intl/intl.dart';
 
 class JobNotes extends StatefulWidget {
-  final int jobID;
-  const JobNotes({super.key, required this.jobID});
+  final int jobId;
+  const JobNotes({super.key, required this.jobId});
 
   @override
   State<JobNotes> createState() => _JobNotesState();
@@ -14,13 +15,28 @@ class JobNotes extends StatefulWidget {
 
 class _JobNotesState extends State<JobNotes> {
   final ApiService apiService = ApiService();
-  List<JobNote> jobNotes = [];
+  List<JobUpdate> jobUpdateNotes = [];
   String text = "";
   bool isPressed = false;
   bool isLoading = true;
+
+  Future<void> fetechJobUpdate() async {
+    setState(() {
+      isLoading = true;
+    });
+    apiService
+        .getJobUpdates(widget.jobId, JobUpdateType.TEXT)
+        .then((responseData) {
+      setState(() {
+        jobUpdateNotes = responseData;
+        isLoading = false;
+      });
+    });
+  }
+
   @override
   void initState() {
-    fetechJobNote();
+    fetechJobUpdate();
     super.initState();
   }
 
@@ -74,10 +90,14 @@ class _JobNotesState extends State<JobNotes> {
       isPressed = true;
     });
 
-    JobNote jobNote =
-        JobNote(taskId: widget.jobID, message: text, date: DateTime.now());
-    apiService.addJobNote(jobNote).then((responseData) async {
-      fetechJobNote();
+    Map<String, dynamic> jobNote = {
+      "taskId": widget.jobId,
+      "data": text,
+      "date": DateTime.now(),
+      "type": JobUpdateType.TEXT,
+    };
+    apiService.addJobUpdate(jobNote).then((responseData) async {
+      fetechJobUpdate();
       navigator.pop();
       setState(() {
         isPressed = false;
@@ -115,15 +135,23 @@ class _JobNotesState extends State<JobNotes> {
     });
   }
 
-  Future<void> fetechJobNote() async {
-    setState(() {
-      isLoading = true;
-    });
-    apiService.getJobNotes(widget.jobID).then((responseData) {
-      setState(() {
-        jobNotes = responseData;
-        isLoading = false;
-      });
+  void handleDelete(int updateId) {
+    // print(updateId);
+    apiService.deleteJobUpdate(updateId).then((value) async {
+      Flushbar(
+              forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
+              icon: Icon(
+                Icons.info_outline,
+                size: 28.0,
+                color: Colors.blue[300],
+              ),
+              barBlur: 3,
+              flushbarPosition: FlushbarPosition.TOP,
+              // title: 'Hey Ninja',
+              duration: Duration(seconds: 3),
+              message: value)
+          .show(context);
+      fetechJobUpdate();
     });
   }
 
@@ -132,7 +160,7 @@ class _JobNotesState extends State<JobNotes> {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(239, 239, 239, 1),
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
         child: Column(
           children: [
             if (isLoading)
@@ -143,20 +171,27 @@ class _JobNotesState extends State<JobNotes> {
             if (!isLoading)
               Expanded(
                   child: RefreshIndicator(
-                onRefresh: fetechJobNote,
+                onRefresh: fetechJobUpdate,
                 child: ListView(
                     padding: EdgeInsets.zero,
-                    children: jobNotes
-                        .map((job) => Card(
-                                // margin: EdgeInsets.zero,
-
-                                child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                job.message,
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            )))
+                    children: jobUpdateNotes
+                        .map((note) => Column(
+                              children: [
+                                Card(
+                                  child: ListTile(
+                                      // contentPadding: EdgeInsets.zero,
+                                      title: Text(note.data),
+                                      subtitle: Text(note.date != null
+                                          ? DateFormat.yMMMd().format(note.date)
+                                          : ""),
+                                      trailing: IconButton(
+                                        icon: Icon(Icons.delete),
+                                        onPressed: () => handleDelete(note.id),
+                                      )),
+                                ),
+                                // Divider(height: 2)
+                              ],
+                            ))
                         .toList()),
               ))
           ],

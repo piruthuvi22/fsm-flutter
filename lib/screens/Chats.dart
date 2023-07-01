@@ -59,7 +59,7 @@ class _ChatsState extends State<Chats> {
                     .map(
                       (receiverId) => ChatPeopleTile(
                         receiverId: receiverId,
-                        message: 'Hey, how are you?',
+                        message: '',
                         unreadCount: 2,
                       ),
                     )
