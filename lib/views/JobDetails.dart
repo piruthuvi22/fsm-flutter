@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:fsm_agent/Models/Job.dart';
-import 'package:fsm_agent/screens/JobUpdates.dart';
+import 'package:fsm_agent/views/JobUpdates.dart';
 import 'package:fsm_agent/services/api_service.dart';
 import 'package:fsm_agent/views/Noteupdate.dart';
 

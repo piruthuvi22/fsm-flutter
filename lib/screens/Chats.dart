@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fsm_agent/components/Drawer.dart';
-import 'package:fsm_agent/screens/ChatScreen.dart';
+import 'package:fsm_agent/views/ChatScreen.dart';
 import 'package:fsm_agent/services/api_service.dart';
 
 class Chats extends StatefulWidget {
@@ -40,6 +40,7 @@ class _ChatsState extends State<Chats> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Color.fromRGBO(239, 239, 239, 1),
         appBar: AppBar(
           title: const Text("Chats"),
           actions: [

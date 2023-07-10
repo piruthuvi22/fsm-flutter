@@ -130,6 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     scrollDown();
     return Scaffold(
+      backgroundColor: Color.fromRGBO(239, 239, 239, 1),
       appBar: AppBar(
         title: Text('Chat'),
       ),

@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fsm_agent/screens/Profile.dart';
+import 'package:fsm_agent/screens/Signin.dart';
 import 'firebase_options.dart';
 
 import 'package:flutter/material.dart';
 import 'package:fsm_agent/components/Drawer.dart';
-import 'package:fsm_agent/screens/Landing.dart';
+import 'package:fsm_agent/screens/Dashboard.dart';
 import 'package:fsm_agent/screens/MyJobs.dart';
 
 import 'screens/Jobs.dart';
@@ -28,38 +30,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: "/dashboard",
+      initialRoute: "/signin",
       routes: {
-        // "/": (context) => const MyHomePage(),
-        "/dashboard": (context) => const MyHomePage(),
+        "/signin": (context) => const Signin(),
+        "/dashboard": (context) => const Dashboard(),
         "/jobs": (context) => const Jobs(),
         "/my-jobs": (context) => const MyJobs(),
         "/chats": (context) => const Chats(),
-        // "/profile-settings": (context) => const ProfileSettings()
+        "/profile": (context) => const Profile()
       },
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("FSM App"),
-        actions: [
-          IconButton(
-              onPressed: () => {print("Icon button 1")},
-              icon: const Icon(Icons.notifications))
-        ],
-      ),
-      body: const SafeArea(child: Landing()),
-      drawer: const DrawerPanel(
-        name: "Piruthuvi",
-        username: "piru",
-      ),
     );
   }
 }

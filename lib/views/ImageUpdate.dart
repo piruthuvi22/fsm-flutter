@@ -188,6 +188,7 @@ class _ImageUpdateState extends State<ImageUpdate> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(239, 239, 239, 1),
       body: isLoading
           ? const LoadingImage()
           : GridView.builder(

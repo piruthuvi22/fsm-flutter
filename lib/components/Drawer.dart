@@ -71,7 +71,7 @@ class _DrawerPanelState extends State<DrawerPanel> {
           ListTile(
               title: const Text('Profile & Settings'),
               leading: const Icon(Icons.settings),
-              onTap: () => Navigator.pushNamed(context, "/profile-settings")),
+              onTap: () => Navigator.pushNamed(context, "/profile")),
           ListTile(
               title: const Text('Logout'),
               leading: const Icon(Icons.logout),

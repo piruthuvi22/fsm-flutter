@@ -75,6 +75,8 @@ flutter:
     - images/completed.svg
     - images/progressing.svg
     - images/today.svg
+    - images/login.svg
+    - images/signup.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
