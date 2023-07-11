@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fsm_agent/Models/Job.dart';
 import 'package:fsm_agent/components/Drawer.dart';
+import 'package:fsm_agent/utils/functions.dart';
+import 'package:fsm_agent/screens/Signin.dart';
 import 'package:fsm_agent/services/api_service.dart';
 import 'package:intl/intl.dart';
 
@@ -158,7 +160,7 @@ class _DashboardState extends State<Dashboard> {
                       children: [...filterList.map((e) => TodayJob(e))]),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

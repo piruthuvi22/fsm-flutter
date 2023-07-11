@@ -1,5 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fsm_agent/utils/functions.dart';
+import 'package:fsm_agent/screens/Dashboard.dart';
+import 'package:http/http.dart' as http;
+
+import '../services/api_service.dart';
 
 class Signin extends StatefulWidget {
   const Signin({super.key});
@@ -10,18 +17,79 @@ class Signin extends StatefulWidget {
 
 class _SigninState extends State<Signin> {
   final _formKey = GlobalKey<FormState>();
-  String _email = '';
-  String _password = '';
+  final ApiService apiService = ApiService();
 
-  void _submitForm() {
-    // navigate to dashboard
-    Navigator.pushNamed(context, '/dashboard');
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      // Perform sign-in logic here
-      print('Email: $_email');
-      print('Password: $_password');
+  String _email = 'agent2@abcd.com';
+  String _password = 'Agent@1234';
+
+  Future<void> _submitForm() async {
+    final navigator = Navigator.of(context);
+
+    // if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
+
+    final response = await http.post(
+      Uri.parse('http://192.168.8.139:8080/user/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': "agent2@abcd.com", 'password': "Agent@1234"}),
+    );
+
+    if (response.statusCode == 200) {
+      final token = jsonDecode(response.body)['token'];
+      if (token != null) {
+        final res = await apiService.getAgentIdByEmail("agent2@abcd.com");
+        if (response.statusCode == 200) {
+          await saveAgentId(res);
+        } else {
+          throw Exception('Failed to load agent id');
+        }
+
+        // Save the JWT token to SharedPreferences
+        await saveToken(token);
+
+        // Navigate to the home screen
+        navigator.pushReplacement(
+          MaterialPageRoute(builder: (context) => Dashboard()),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Login Failed'),
+              content: Text('Please check your credentials.'),
+              actions: [
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Something went wrong'),
+            content: Text('Please try again later'),
+            actions: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
+    // }
   }
 
   @override
@@ -60,7 +128,6 @@ class _SigninState extends State<Signin> {
                 children: [
                   TextFormField(
                     keyboardType: TextInputType.emailAddress,
-                    obscureText: true,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Email',

@@ -1,3 +1,4 @@
+import 'package:fsm_agent/utils/functions.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -9,18 +10,29 @@ import 'package:fsm_agent/Models/Job.dart';
 
 class ApiService {
   // static const baseUrl = 'http://10.10.23.243:8080'; // UoM Wireless
-  // static const baseUrl = 'http://192.168.8.139:8080'; // WiFi
-  static const baseUrl = 'http://192.168.143.104:8080'; // hotspot
+  static const baseUrl = 'http://192.168.8.139:8080'; // WiFi
+  // static const baseUrl = 'http://192.168.143.104:8080'; // hotspot
 
   // static const baseSocketUrl = 'http://10.10.23.243:8081'; // UoM Wireless
-  // static const baseSocketUrl = 'http://192.168.8.139:8081'; // WiFi
-  static const baseSocketUrl = 'http://192.168.143.104:8081'; // hotspot
+  static const baseSocketUrl = 'http://192.168.8.139:8081'; // WiFi
+  // static const baseSocketUrl = 'http://192.168.143.104:8081'; // hotspot
+
+  // Get agent id by email and store in shared preferences
+  Future<int> getAgentIdByEmail(String email) async {
+    final response =
+        await http.get(Uri.parse('$baseUrl/user/get-user-id-by-email/$email'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['id'];
+    } else {
+      throw Exception('Failed to load agent id');
+    }
+  }
 
 // fetch assigned jobs of agent
   Future<List<Job>> getAssignedJobs() async {
-    var agentId = 2;
-    final response =
-        await http.get(Uri.parse('$baseUrl/get-assigned/$agentId'));
+    int? agentId = await loadAgentId();
+
+    final response = await http.get(Uri.parse('$baseUrl/get-assigned/2'));
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as List)
           .map((e) => Job.fromJson(e))

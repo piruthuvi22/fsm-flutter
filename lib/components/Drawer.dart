@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fsm_agent/screens/Signin.dart';
+import 'package:fsm_agent/utils/functions.dart';
 
 class DrawerPanel extends StatefulWidget {
   const DrawerPanel({super.key, this.username = "user", this.name = "name"});
@@ -9,6 +11,18 @@ class DrawerPanel extends StatefulWidget {
 }
 
 class _DrawerPanelState extends State<DrawerPanel> {
+  Future<void> _logout() async {
+    final navigator = Navigator.of(context);
+    // Remove the JWT token from SharedPreferences
+    await removeToken();
+    await removeAgentId();
+
+    // Navigate back to the login screen
+    navigator.pushReplacement(
+      MaterialPageRoute(builder: (context) => const Signin()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -75,7 +89,7 @@ class _DrawerPanelState extends State<DrawerPanel> {
           ListTile(
               title: const Text('Logout'),
               leading: const Icon(Icons.logout),
-              onTap: () => Navigator.pushNamed(context, "/logout")),
+              onTap: () => _logout()),
         ],
       ),
     );
